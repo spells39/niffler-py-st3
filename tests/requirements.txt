@@ -1,0 +1,6 @@
+pytest
+playwright
+pytest-playwright
+pytest-lazy-fixtures
+dotenv
+mimesis
