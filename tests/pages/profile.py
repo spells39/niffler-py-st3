@@ -27,6 +27,7 @@ class Profile(ParentPage):
         self.success_message.wait_for()
 
     def add_category(self, category_name: str):
+        self.add_category_input.click()
         self.add_category_input.fill(category_name)
         self.add_category_input.press("Enter")
 
@@ -34,12 +35,13 @@ class Profile(ParentPage):
         self.page.get_by_role("button", name="Archive category").first.click()
         self.page.get_by_role("button", name="Archive").click()
 
-    def edit_category(self, category_name: str):
+    def edit_category(self, category_name: str, invalid: bool = False):
         self.page.get_by_role("button", name="Edit category").first.click()
         self.page.get_by_role("textbox", name="Edit category").click()
         self.page.get_by_role("textbox", name="Edit category").fill(category_name)
         self.page.get_by_role("textbox", name="Edit category").press("Enter")
-        self.page.get_by_text("Category name is changed").wait_for()
+        if not invalid:
+            self.page.get_by_text("Category name is changed").wait_for()
 
     def logout(self):
         self.menu_button.click()

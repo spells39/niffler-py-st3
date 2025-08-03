@@ -12,10 +12,14 @@ class SignUp(Login):
         self.button = page.get_by_role("button", name="Sign Up")
         self.link_to_sign_in_button = page.get_by_role("link", name="Sign In")
 
-    def sign_up(self, login: str, password: str):
+    def sign_up(self, login: str, password: str, invalid: bool = False, second_password: str = ''):
         self.login.fill(login)
         self.password.fill(password)
-        self.submit_password.fill(password)
+        if not second_password:
+            self.submit_password.fill(password)
+        else:
+            self.submit_password.fill(second_password)
         self.button.click()
-        self.link_to_sign_in_button.wait_for()
-        self.link_to_sign_in_button.click()
+        if not invalid:
+            self.link_to_sign_in_button.wait_for()
+            self.link_to_sign_in_button.click()
