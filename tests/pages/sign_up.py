@@ -8,7 +8,7 @@ class SignUp(Login):
         super().__init__(page)
         self.login = page.get_by_placeholder("Type your username")
         self.password = page.get_by_placeholder("Type your password")
-        self.submit_password = page.get_by_placeholder("Submit your password")
+        self.submit_password = page.get_by_role("textbox", name="Submit password")
         self.button = page.get_by_role("button", name="Sign Up")
         self.link_to_sign_in_button = page.get_by_role("link", name="Sign In")
 
