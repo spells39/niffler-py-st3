@@ -1,0 +1,11 @@
+pytest
+playwright
+pytest-playwright
+pytest-lazy-fixtures
+dotenv
+mimesis
+faker
+
+psycopg2-binary
+sqlalchemy
+sqlmodel
