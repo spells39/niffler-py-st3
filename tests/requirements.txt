@@ -5,6 +5,8 @@ pytest-lazy-fixtures
 dotenv
 mimesis
 faker
+allure-pytest
+requests-toolbelt
 
 psycopg2-binary
 sqlalchemy

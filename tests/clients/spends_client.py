@@ -1,7 +1,10 @@
 from urllib.parse import urljoin
 
+import allure
 import requests
-from fastapi_pagination import response
+from allure_commons.types import AttachmentType
+from requests import Response
+from requests_toolbelt.utils.dump import dump_response
 
 from tests.models.spend import Category, Spend, SpendAdd, SpendResp
 
@@ -16,6 +19,12 @@ class SpendsHttpClient:
         self.session.headers.update({'Accept': 'application/json',
                                      'Authorization': f'Bearer {token}',
                                      'Content-Type': 'application/json'})
+        self.session.hooks["response"].append(self.attach_response)
+
+    @staticmethod
+    def attach_response(response: Response, *args, **kwargs):
+        attachment_name = response.request.method + " " + response.request.url
+        allure.attach(dump_response(response), attachment_name, attachment_type=AttachmentType.TEXT)
 
     def get_categories(self) -> list[Category]:
         response = self.session.get(urljoin(self.base_url, "/api/categories/all"), params={'excludeArchived': 'true'})

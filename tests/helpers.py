@@ -1,3 +1,4 @@
+import allure
 import mimesis
 from playwright.sync_api import Page
 from dotenv import load_dotenv
@@ -8,10 +9,12 @@ load_dotenv()
 
 
 def add_category(page: Page, category: str, url: str):
-    page.goto(f"{url}/profile")
-    page.wait_for_load_state("networkidle")
-    profile_page = Profile(page)
-    profile_page.add_category(category)
+    with allure.step("Переход на страницу профиля"):
+        page.goto(f"{url}/profile")
+        page.wait_for_load_state("networkidle")
+    with allure.step("Добавление категории"):
+        profile_page = Profile(page)
+        profile_page.add_category(category)
 
 
 def categories():

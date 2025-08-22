@@ -1,12 +1,7 @@
-# 1. через апи добавить трату, проверить в бд, есть ли она _______DONE
-# 2. через апи редактировать трату, проверить в бд _______DONE
-# 3. через апи удалить трату, проверить в бд _______DONE
-# 4. через апи добавить категорию, проверить в бд _______DONE
-# 5. через апи редактировать категорию, проверить в бд _______DONE
-# 6. через бд удалить категорию и проверить фронт/бек _______DONE
 import os
 import random
 
+import allure
 import faker
 import mimesis
 from dotenv import load_dotenv
@@ -25,69 +20,99 @@ faker = faker.Faker()
 
 class TestDB:
 
+    @allure.epic("Профиль")
+    @allure.feature("Работа с БД")
+    @allure.story("Добавление категории")
     def test_add_category(self, sign_in, api_url):
-        client = SpendsHttpClient(base_url=api_url, token=sign_in[0])
-        category = mimesis.Text('en').word()
-        resp = client.add_category(category)
-        db_client = SpendDb(db_url)
-        db_cat = db_client.get_category_by_id(resp.id)
-        assert db_cat.name == category and db_cat.id == resp.id
+        with allure.step("Добавление категории"):
+            client = SpendsHttpClient(base_url=api_url, token=sign_in[0])
+            category = mimesis.Text('en').word()
+            resp = client.add_category(category)
+        with allure.step("Проверка наличия категории в БД"):
+            db_client = SpendDb(db_url)
+            db_cat = db_client.get_category_by_id(resp.id)
+            assert db_cat.name == category and db_cat.id == resp.id
 
+    @allure.epic("Профиль")
+    @allure.feature("Работа с БД")
+    @allure.story("Редактирование категории")
     def test_edit_category(self, sign_in, api_url, categories):
-        client = SpendsHttpClient(base_url=api_url, token=sign_in[0])
-        category = random.choice(categories())
-        category.name = mimesis.Text('en').word()
-        resp = client.edit_category(category)
-        db_client = SpendDb(db_url)
-        db_cat = db_client.get_category_by_id(resp.id)
-        assert db_cat.name == category.name and db_cat.id == resp.id
+        with allure.step("Редактирование категории"):
+            client = SpendsHttpClient(base_url=api_url, token=sign_in[0])
+            category = random.choice(categories())
+            category.name = mimesis.Text('en').word()
+            resp = client.edit_category(category)
+        with allure.step("Проверка наличия категории в БД"):
+            db_client = SpendDb(db_url)
+            db_cat = db_client.get_category_by_id(resp.id)
+            assert db_cat.name == category.name and db_cat.id == resp.id
 
+    @allure.epic("Профиль")
+    @allure.feature("Работа с БД")
+    @allure.story("Удаление категории")
     def test_remove_category(self, sign_in, api_url, categories):
-        db_client = SpendDb(db_url)
-        db_categories = db_client.get_categories(sign_in[1]['login'])
-        db_category = random.choice(db_categories)
-        while db_category.archived:
+        with allure.step("Удаление категории из БД"):
+            db_client = SpendDb(db_url)
+            db_categories = db_client.get_categories(sign_in[1]['login'])
             db_category = random.choice(db_categories)
-        db_client.remove_category_by_id(db_category.id)
-        assert not any(db_category.id in cat.id for cat in categories())
+            while db_category.archived:
+                db_category = random.choice(db_categories)
+            db_client.remove_category_by_id(db_category.id)
+        with allure.step("Проверка удаления категории"):
+            assert not any(db_category.id in cat.id for cat in categories())
 
+    @allure.epic("Главная страница")
+    @allure.feature("Работа с БД")
+    @allure.story("Добавление траты")
     def test_add_spend(self, sign_in, api_url):
-        client = SpendsHttpClient(base_url=api_url, token=sign_in[0])
-        category = mimesis.Text('en').word()
-        description = mimesis.Text('en').word()
-        amount = num.float_number(1, 110000)
-        random_date = faker.date_time_this_decade().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
-        spend = SpendAdd(amount=amount,
-                         description=description,
-                         category={'name': category},
-                         spendDate=random_date,
-                         currency=random.choice(currencies_api))
-        resp = client.add_spend(spend)
-        db_client = SpendDb(db_url)
-        db_spend = db_client.get_spend_by_id(resp.id)
-        assert db_spend.amount == amount and db_spend.description == description
+        with allure.step("Добавление траты"):
+            client = SpendsHttpClient(base_url=api_url, token=sign_in[0])
+            category = mimesis.Text('en').word()
+            description = mimesis.Text('en').word()
+            amount = num.float_number(1, 110000)
+            random_date = faker.date_time_this_decade().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+            spend = SpendAdd(amount=amount,
+                             description=description,
+                             category={'name': category},
+                             spendDate=random_date,
+                             currency=random.choice(currencies_api))
+            resp = client.add_spend(spend)
+        with allure.step("Проверка наличия траты в БД"):
+            db_client = SpendDb(db_url)
+            db_spend = db_client.get_spend_by_id(resp.id)
+            assert db_spend.amount == amount and db_spend.description == description
 
+    @allure.epic("Главная страница")
+    @allure.feature("Работа с БД")
+    @allure.story("Редактирование траты")
     def test_edit_spend(self, sign_in, api_url, spends):
-        client = SpendsHttpClient(base_url=api_url, token=sign_in[0])
-        category = mimesis.Text('en').word()
-        description = mimesis.Text('en').word()
-        amount = num.float_number(1, 100000)
-        random_date = faker.date_time_this_decade().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
-        spend = random.choice(spends())
-        payload = SpendAdd(amount=amount,
-                           description=description,
-                           category={'name': category},
-                           spendDate=random_date,
-                           currency=random.choice(currencies_api),
-                           id=spend['id'])
-        resp = client.edit_spend(payload)
-        db_client = SpendDb(db_url)
-        db_spend = db_client.get_spend_by_id(spend['id'])
-        assert db_spend.amount == amount and db_spend.description == description
+        with allure.step("Редактирование траты"):
+            client = SpendsHttpClient(base_url=api_url, token=sign_in[0])
+            category = mimesis.Text('en').word()
+            description = mimesis.Text('en').word()
+            amount = num.float_number(1, 100000)
+            random_date = faker.date_time_this_decade().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+            spend = random.choice(spends())
+            payload = SpendAdd(amount=amount,
+                               description=description,
+                               category={'name': category},
+                               spendDate=random_date,
+                               currency=random.choice(currencies_api),
+                               id=spend['id'])
+            resp = client.edit_spend(payload)
+        with allure.step("Проверка наличия траты в БД"):
+            db_client = SpendDb(db_url)
+            db_spend = db_client.get_spend_by_id(spend['id'])
+            assert db_spend.amount == amount and db_spend.description == description
 
+    @allure.epic("Главная страница")
+    @allure.feature("Работа с БД")
+    @allure.story("Удаление траты")
     def test_remove_spend(self, sign_in, spends):
-        spend = random.choice(spends())
-        db_client = SpendDb(db_url)
-        db_client.remove_spend(spend['id'])
-        assert not any(spend['id'] in sp['id'] for sp in spends())
+        with allure.step("Удаление траты"):
+            spend = random.choice(spends())
+            db_client = SpendDb(db_url)
+            db_client.remove_spend(spend['id'])
+        with allure.step("Проверка удаления траты"):
+            assert not any(spend['id'] in sp['id'] for sp in spends())
 
