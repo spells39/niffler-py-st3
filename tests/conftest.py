@@ -11,6 +11,7 @@ from pytest import Item, FixtureDef, FixtureRequest
 from dotenv import load_dotenv
 from playwright.sync_api import Page, sync_playwright
 
+from tests.clients.auth_client import AuthClient
 from tests.clients.spends_client import SpendsHttpClient
 from tests.database.auth_db import AuthDb
 from tests.database.spend_db import SpendDb
@@ -133,13 +134,19 @@ def users():
     yield users
 
 
+@pytest.fixture(scope="session")
+def auth_api_token(envs: Envs):
+    token = AuthClient(envs).auth(envs.test_username, envs.test_password)
+    allure.attach(token, name="token.txt", attachment_type=AttachmentType.TEXT)
+    return token
+
+
 @pytest.fixture
 def sign_in(request, users, auth_url, base_url, page: Page, users_from_db):
     with allure.step("Подготовка данных"):
         if not any('aboba' in user.username for user in users_from_db()):
             sign_up(page, base_url, auth_url)
         expected_urls = [f"{base_url}/main", f"{base_url}/profile", f"{base_url}/spending"]
-        #page = request.getfixturevalue("page")
         func_params = signature(request.function).parameters
         if "user_id" in func_params:
             user = users[request.getfixturevalue("user_id")]
