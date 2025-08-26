@@ -11,3 +11,6 @@ requests-toolbelt
 psycopg2-binary
 sqlalchemy
 sqlmodel
+
+pkce
+curlify

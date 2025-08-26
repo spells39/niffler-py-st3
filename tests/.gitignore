@@ -47,3 +47,6 @@ Thumbs.db
 .idea_modules/
 
  **/allure-results/
+allure-results
+allure_results
+ **/allure_results/

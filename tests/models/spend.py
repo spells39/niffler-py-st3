@@ -46,6 +46,44 @@ class SpendAdd(BaseModel):
     id: Optional[str] = None
 
 
+class CategoryResp(BaseModel):
+    id: str
+    name: str
+    username: str
+    archived: bool
+
+
+class SpendSearchPayload(BaseModel):
+    page: int
+    searchQuery: str
+    filterCurrency: Optional[str] = None
+    filterPeriod: Optional[str] = None
+
+
+class ContentItem(BaseModel):
+    id: str
+    spendDate: str
+    category: CategoryResp
+    currency: str
+    amount: float
+    description: str
+    username: str
+
+
+class SpendSearchResp(BaseModel):
+    content: list[ContentItem]
+    number: int
+    size: int
+    totalElements: int
+    pageable: dict
+    last: bool
+    totalPages: int
+    sort: dict
+    first: bool
+    numberOfElements: int
+    empty: bool
+
+
 class User(SQLModel, table=True):
     id: UUID = Field(primary_key=True)
     username: str
