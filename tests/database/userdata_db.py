@@ -1,10 +1,10 @@
 from sqlalchemy import Engine, create_engine, Sequence
 from sqlmodel import Session, select
 
-from tests.models.oauth import User
+from tests.models.userdata import User
 
 
-class AuthDb:
+class UserdataDb:
     engine: Engine
 
     def __init__(self, auth_url: str):

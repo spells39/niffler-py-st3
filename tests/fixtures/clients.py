@@ -3,6 +3,7 @@ import pytest
 from tests.clients.spends_client import SpendsHttpClient
 from tests.database.auth_db import AuthDb
 from tests.database.spend_db import SpendDb
+from tests.database.userdata_db import UserdataDb
 
 
 @pytest.fixture
@@ -16,6 +17,10 @@ def spend_db(envs) -> SpendDb:
 @pytest.fixture
 def auth_db(envs) -> AuthDb:
     return AuthDb(envs.auth_db_url)
+
+@pytest.fixture
+def userdata_db(envs) -> UserdataDb:
+    return UserdataDb(envs.userdata_db_url)
 
 
 @pytest.fixture

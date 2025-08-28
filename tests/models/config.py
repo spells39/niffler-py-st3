@@ -8,5 +8,7 @@ class Envs(BaseModel):
     auth_secret: str
     spend_db_url: str
     auth_db_url: str
+    userdata_db_url: str
     test_username: str
     test_password: str
+    kafka: str

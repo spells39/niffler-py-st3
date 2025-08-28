@@ -32,7 +32,10 @@ class OAuthClient:
         2. Получаем code из redirec по xsrf-token'у.
         3. Получаем access_token.
         """
-        redirect_uri = f"{envs.front_url}/authorized"
+        try:
+            OAuthClient(envs).register(username, password, envs)
+        except Exception as e:
+            pass
         self.session.get(
             url="/oauth2/authorize",
             params=OAuthRequest(
@@ -65,3 +68,46 @@ class OAuthClient:
         )
         self.token = token_response.json().get("access_token", None)
         return self.token
+
+    def register(self, username, password, envs: Envs, expect_error: bool = False):
+        if expect_error:
+            self.session.get(
+                url=f"{envs.auth_url}/register",
+                params={
+                    "redirect_uri": "http://auth.niffler.dc:9000/register",
+                },
+                allow_redirects=True,
+                skip_status_check=True
+            )
+
+            result = self.session.post(
+                url=f"{envs.auth_url}/register",
+                data={
+                    "username": username,
+                    "password": password,
+                    "passwordSubmit": password,
+                    "_csrf": self.session.cookies.get("XSRF-TOKEN")
+                },
+                allow_redirects=True,
+                skip_status_check=True
+            )
+        else:
+            self.session.get(
+                url=f"{envs.auth_url}/register",
+                params={
+                    "redirect_uri": "http://auth.niffler.dc:9000/register",
+                },
+                allow_redirects=True
+            )
+
+            result = self.session.post(
+                url=f"{envs.auth_url}/register",
+                data={
+                    "username": username,
+                    "password": password,
+                    "passwordSubmit": password,
+                    "_csrf": self.session.cookies.get("XSRF-TOKEN")
+                },
+                allow_redirects=True
+            )
+        return result

@@ -5,8 +5,8 @@ import mimesis
 import pytest
 from dotenv import load_dotenv
 
-from tests.constants import currencies
-from tests.helpers import add_category, invalid_users
+from tests.utils.constants import currencies
+from tests.utils.helpers import add_category, invalid_users
 from tests.pages.main import MainStatisticsPage
 from tests.pages.new_spending import Spending
 
@@ -28,7 +28,7 @@ class TestLogin:
     @allure.epic("Аутентификация")
     @allure.feature("Регистрация")
     @allure.story("Регистрация валидного пользователя")
-    @pytest.mark.parametrize("user_id", list(range(11)))
+    @pytest.mark.parametrize("user_id", list(range(1,11)))
     def test_sign_up(self, page: Page, user_id: int, users, base_url, auth_url):
         user = users[user_id]
         with allure.step("Переход на страницу регистрации"):

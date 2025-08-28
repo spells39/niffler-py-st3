@@ -10,6 +10,8 @@ from allure_commons.reporter import AllureReporter
 from allure_commons.types import AttachmentType
 from allure_pytest.listener import AllureListener
 from dotenv import load_dotenv
+
+from tests.clients.kafka_client import KafkaClient
 from tests.models.config import Envs
 
 pytest_plugins = ["tests.fixtures.auth", "tests.fixtures.clients", "tests.fixtures.pages"]
@@ -47,8 +49,10 @@ def envs():
         auth_secret=os.getenv("AUTH_SECRET"),
         spend_db_url=os.getenv("SPEND_DB_URL"),
         auth_db_url=os.getenv("USER_DB_URL"),
+        userdata_db_url=os.getenv("USERDATA_DB_URL"),
         test_username=os.getenv("TEST_USERNAME"),
-        test_password=os.getenv("TEST_PASSWORD")
+        test_password=os.getenv("TEST_PASSWORD"),
+        kafka=os.getenv("KAFKA")
     )
     allure.attach(env_instance.model_dump_json(), name="envs", attachment_type=AttachmentType.JSON)
     return env_instance
@@ -67,6 +71,12 @@ def api_url(envs):
 @pytest.fixture(scope="session")
 def auth_url(envs):
     return os.getenv("AUTH_URL")
+
+
+@pytest.fixture(scope="session")
+def kafka(envs):
+    with KafkaClient(envs) as k:
+        yield k
 
 
 @pytest.fixture(scope="session", autouse=True)

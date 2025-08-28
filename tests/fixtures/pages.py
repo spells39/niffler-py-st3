@@ -5,7 +5,7 @@ import pytest
 from allure_commons.types import AttachmentType
 from playwright.sync_api import Page, sync_playwright
 
-from tests.helpers import sign_up
+from tests.utils.helpers import sign_up
 from tests.pages.login import Login
 
 

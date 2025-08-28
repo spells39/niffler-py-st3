@@ -7,7 +7,7 @@ import mimesis
 from dotenv import load_dotenv
 
 from tests.clients.spends_client import SpendsHttpClient
-from tests.constants import currencies_api
+from tests.utils.constants import currencies_api
 from tests.database.spend_db import SpendDb
 from tests.models.spend import SpendAdd
 

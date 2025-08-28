@@ -4,7 +4,7 @@ import allure
 import mimesis
 from faker.proxy import Faker
 
-from tests.constants import currencies_api
+from tests.utils.constants import currencies_api
 from tests.models.profile import ProfilePayload
 from tests.models.spend import Category, SpendAdd, SpendSearchPayload
 

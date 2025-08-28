@@ -84,11 +84,3 @@ class SpendSearchResp(BaseModel):
     empty: bool
 
 
-class User(SQLModel, table=True):
-    id: UUID = Field(primary_key=True)
-    username: str
-    password: str
-    enabled: bool
-    account_non_expired: bool
-    account_non_locked: bool
-    credentials_non_expired: bool
