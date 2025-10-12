@@ -1,4 +1,5 @@
 import os
+
 import pytest
 
 from pytest import Item, FixtureRequest
@@ -13,10 +14,13 @@ from dotenv import load_dotenv
 
 from tests.clients.kafka_client import KafkaClient
 from tests.models.config import Envs
+from tests.utils.UsersData import get_user_data
 
 pytest_plugins = ["tests.fixtures.auth", "tests.fixtures.clients", "tests.fixtures.pages"]
 
 person = mimesis.Person()
+
+_CACHED_USERS = None
 
 
 def allure_logger(config) -> AllureReporter:
@@ -37,6 +41,24 @@ def pytest_fixture_setup(fixturedef: FixtureDef, request: FixtureRequest):
     item = logger.get_last_item()
     scope_letter = fixturedef.scope[0].upper()
     item.name = f"[{scope_letter}] " + " ".join(fixturedef.argname.split("_")).title()
+
+
+def pytest_collection_modifyitems(items):
+    CLASS_ORDER = ["TestKafkaUserData", "TestAPI", "TestDB", "TestLogin", "TestProfile", "TestSpending"]
+    class_mapping = {item: item.cls.__name__ for item in items if hasattr(item, 'cls') and item.cls}
+
+    sorted_items = []
+
+    # Сначала добавляем классы в указанном порядке
+    for class_name in CLASS_ORDER:
+        class_items = [item for item in items if class_mapping.get(item) == class_name]
+        sorted_items.extend(class_items)
+
+    # Потом все остальные классы
+    other_items = [item for item in items if class_mapping.get(item) not in CLASS_ORDER]
+    sorted_items.extend(other_items)
+
+    items[:] = sorted_items
 
 
 @pytest.fixture(scope="session")
@@ -79,14 +101,12 @@ def kafka(envs):
         yield k
 
 
-@pytest.fixture(scope="session", autouse=True)
-def users():
-    users = [{'login': 'aboba', 'password': '12345', 'categories': [], 'spendings': []}]
-    for i in range(10):
-        users.append({
-            "login": person.username(),
-            "password": person.password(),
-            "categories": [],
-            "spendings": []
-        })
-    yield users
+@pytest.fixture(scope="module")
+def user_data(request):
+    file_path = str(request.fspath)
+    return get_user_data(file_path)
+
+
+@pytest.fixture(scope="module")
+def users(user_data):
+    return user_data.get_users()

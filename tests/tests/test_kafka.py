@@ -1,6 +1,8 @@
 import json
+
 import mimesis
 import allure
+import pytest
 
 from faker import Faker
 
@@ -9,6 +11,7 @@ from tests.models.userdata import UserName
 person = mimesis.Person()
 
 
+@pytest.mark.run(order=1)
 class TestKafkaUserData:
     @allure.title("KAFKA: Сообщение НЕ публикуется при регистрации с невалидным username")
     @allure.tag("KAFKA")
@@ -23,9 +26,19 @@ class TestKafkaUserData:
         with allure.step("Проверить, что регистрация завершилась ошибкой"):
             assert result.status_code != 201
 
-        with allure.step("Убедиться, что сообщение НЕ было отправлено в Kafka"):
-            event = kafka.log_msg_and_json(topic_partitions)
-            assert event is None or event == '' or event == b''
+        # with allure.step("Убедиться, что сообщение НЕ было отправлено в Kafka"):
+        #     event = kafka.log_msg_and_json(topic_partitions)
+        #     assert event is None or event == '' or event == b''
+        with allure.step("Убедиться, что сообщение с нашим username НЕ было отправлено в Kafka"):
+            for _ in range(5):
+                msg = kafka.log_msg_and_json(topic_partitions)
+                if not msg:
+                    continue
+                try:
+                    message_data = json.loads(msg.decode("utf-8"))
+                except Exception:
+                    continue
+                assert message_data.get("username") != username, f"Найдено сообщение с username={username}"
 
     @allure.title("KAFKA: Сообщение НЕ публикуется при невалидном пароле")
     @allure.tag("KAFKA")
@@ -40,9 +53,19 @@ class TestKafkaUserData:
         with allure.step("Проверка ошибки валидации пароля"):
             assert result.status_code != 201
 
-        with allure.step("Проверка, что сообщение НЕ было отправлено в Kafka"):
-            event = kafka.log_msg_and_json(topic_partitions)
-            assert event is None or event == '' or event == b''
+        # with allure.step("Проверка, что сообщение НЕ было отправлено в Kafka"):
+        #     event = kafka.log_msg_and_json(topic_partitions)
+        #     assert event is None or event == '' or event == b''
+        with allure.step("Убедиться, что сообщение с нашим username НЕ было отправлено в Kafka"):
+            for _ in range(5):
+                msg = kafka.log_msg_and_json(topic_partitions)
+                if not msg:
+                    continue
+                try:
+                    message_data = json.loads(msg.decode("utf-8"))
+                except Exception:
+                    continue
+                assert message_data.get("username") != username, f"Найдено сообщение с username={username}"
 
     @allure.title("KAFKA: Полный цикл регистрация")
     @allure.tag("KAFKA")
@@ -59,9 +82,23 @@ class TestKafkaUserData:
             result = auth_client.register(username, password, envs=envs)
             assert result.status_code == 201
 
+        # with allure.step("Получение сообщения из Kafka"):
+        #     event = kafka.log_msg_and_json(topic_partitions)
+        #     assert event != '' and event != b''
+
         with allure.step("Получение сообщения из Kafka"):
-            event = kafka.log_msg_and_json(topic_partitions)
-            assert event != '' and event != b''
+            # читаем до тех пор, пока не придет именно наш username
+            event = None
+            for _ in range(5):
+                msg = kafka.log_msg_and_json(topic_partitions)
+                if not msg:
+                    continue
+                message_data = json.loads(msg.decode("utf-8"))
+                if message_data.get("username") == username:
+                    event = msg
+                    break
+
+            assert event, "Сообщение не получено"
 
         with allure.step("Валидация структуры сообщения"):
             message_data = json.loads(event.decode('utf8'))

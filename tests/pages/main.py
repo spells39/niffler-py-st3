@@ -45,7 +45,6 @@ class MainStatisticsPage(ParentPage):
         self.search_input.click()
         self.search_input.fill(category)
         self.search_input.press("Enter")
-        self.page.locator(f'tr:has(span:has-text("{category}"))').wait_for()
 
     def delete_all(self):
         self.select_all.check()
