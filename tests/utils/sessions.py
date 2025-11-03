@@ -55,3 +55,13 @@ class AuthSession(BaseSession):
                     self.code = code_list[0]
 
         return response
+
+
+class SoapSession(Session):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.url = kwargs.pop("url", "")
+        self.headers.update({'Content-Type': 'text/xml; charset=utf-8'})
+
+    def request(self, method='POST', url='', **kwargs):
+        return super().request(method, self.url + url, **kwargs)

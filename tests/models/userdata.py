@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel
 from sqlalchemy.orm import declarative_base
 from sqlmodel import SQLModel, Field
@@ -20,3 +22,11 @@ class User(BaseUserData, SQLModel, table=True):
 
 class UserName(BaseModel):
     username: str
+
+
+class Friendship(SQLModel, table=True):
+    __tablename__ = 'friendship'
+    requester_id: str = Field(primary_key=True, foreign_key="user.id")
+    addressee_id: str = Field(primary_key=True, foreign_key="user.id")
+    status: str
+    created_date: date

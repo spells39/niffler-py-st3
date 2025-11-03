@@ -1,7 +1,8 @@
 from sqlalchemy import Engine, create_engine, Sequence
+from sqlalchemy.exc import NoResultFound
 from sqlmodel import Session, select
 
-from tests.models.userdata import User
+from tests.models.userdata import User, Friendship
 
 
 class UserdataDb:
@@ -24,3 +25,13 @@ class UserdataDb:
         with Session(self.engine) as session:
             statement = select(User).where(User.username == username)
             return session.exec(statement).first()
+
+    def get_friend(self, requester_id: str, addressee_id: str):
+        with Session(self.engine) as session:
+            statement = select(Friendship).where(
+                Friendship.requester_id == requester_id,
+                Friendship.addressee_id == addressee_id)
+            try:
+                return session.exec(statement).one()
+            except NoResultFound:
+                return None

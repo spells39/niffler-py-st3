@@ -33,7 +33,6 @@ class TestLogin:
         user = user_data.get_user(user_id=user_id)
         with allure.step("Переход на страницу регистрации"):
             page.goto(f"{auth_url}/register")
-            page.wait_for_load_state("networkidle")
         with allure.step("Регистрация"):
             reg_page = SignUp(page)
             reg_page.sign_up(user['login'], user['password'])
@@ -51,7 +50,6 @@ class TestLogin:
         password = '12345'
         with allure.step("Переход на страницу регистрации"):
             page.goto(f"{auth_url}/register")
-            page.wait_for_load_state("networkidle")
         with allure.step("Регистрация"):
             reg_page = SignUp(page)
             reg_page.sign_up(login, password, True)
@@ -68,7 +66,6 @@ class TestLogin:
         second_password = person.password()
         with allure.step("Переход на страницу регистрации"):
             page.goto(f"{auth_url}/register")
-            page.wait_for_load_state("networkidle")
         with allure.step("Регистрация"):
             reg_page = SignUp(page)
             reg_page.sign_up(login, password, True, second_password)
@@ -83,7 +80,6 @@ class TestLogin:
         user = user_data.get_user(user_id=0)
         with allure.step("Переход на страницу регистрации"):
             page.goto(f"{auth_url}/register")
-            page.wait_for_load_state("networkidle")
         with allure.step("Регистрация"):
             reg_page = SignUp(page)
             reg_page.sign_up(user['login'], user['password'], True)
@@ -98,12 +94,10 @@ class TestLogin:
         user = user_data.get_user(user_id=user_id)
         with allure.step("Переход на страницу авторизации"):
             page.goto(f"{auth_url}/login")
-            page.wait_for_load_state("networkidle")
         with allure.step("Авторизация"):
             login_page = Login(page)
             login_page.log_in(user['login'], user['password'])
         with allure.step("Проверка успешности авторизации"):
-            # page.wait_for_url(f"{base_url}/main")
             assert page.title() == "Niffler", f"{page.url}"
 
     @allure.epic("Аутентификация")
@@ -115,7 +109,6 @@ class TestLogin:
         login, password = user
         with allure.step("Переход на страницу авторизации"):
             page.goto(f"{auth_url}/login")
-            page.wait_for_load_state("networkidle")
         with allure.step("Авторизация"):
             login_page = Login(page)
             login_page.log_in(login, password)
@@ -133,7 +126,6 @@ class TestLogin:
         with allure.step("Выход"):
             main_page.logout()
         with allure.step("Проверка успешности выхода"):
-            page.wait_for_load_state("networkidle")
             page.wait_for_url(f"{auth_url}/login")
             assert page.title() == "Login to Niffler"
 
@@ -149,7 +141,6 @@ class TestProfile:
         sign_in_front(user_data.get_user(user_id))
         with allure.step("Переход на страницу профиля"):
             page.goto(f"{base_url}/profile")
-            page.wait_for_load_state("networkidle")
         with allure.step("Редактирование профиля"):
             profile_page = Profile(page)
             new_name = person.name()
@@ -167,7 +158,6 @@ class TestProfile:
         sign_in_front(user_data.get_user(user_id))
         with allure.step("Переход на страницу профиля"):
             page.goto(f"{base_url}/profile")
-            page.wait_for_load_state("networkidle")
         with allure.step("Добавление категории"):
             profile_page = Profile(page)
             user_category = mimesis.Text('en').word()
@@ -185,7 +175,6 @@ class TestProfile:
         sign_in_front(user_data.get_user(user_id=0))
         with allure.step("Переход на страницу профиля"):
             page.goto(f"{base_url}/profile")
-            page.wait_for_load_state("networkidle")
         with allure.step("Добавление категории"):
             profile_page = Profile(page)
             user_category = 'a'
@@ -205,7 +194,6 @@ class TestProfile:
 
         with allure.step("Переход на страницу профиля"):
             page.goto(f"{base_url}/profile")
-            page.wait_for_load_state("networkidle")
         with allure.step("Архивирование категории"):
             profile_page = Profile(page)
             profile_page.archive_category()
@@ -250,7 +238,6 @@ class TestProfile:
 
         with allure.step("Переход на страницу профиля"):
             page.goto(f"{base_url}/profile")
-            # page.wait_for_load_state("networkidle")
         with allure.step("Редактирование категории"):
             profile_page = Profile(page)
             category = '+'
@@ -284,7 +271,6 @@ class TestSpending:
             spending_page.add_spending_exist_category(amount, currency, user_category, desc)
         with allure.step("Проверка добавления траты"):
             page.goto(f"{base_url}/main")
-            page.wait_for_load_state("networkidle")
             expect(page.get_by_role("checkbox", name=user_category, exact=True)).to_be_visible()
             user_data.add_spending(user_id=user_id, spending=user_category)
 
@@ -296,7 +282,6 @@ class TestSpending:
         sign_in_front(user_data.get_user(user_id))
         with allure.step("Переход на страницу добавления трат"):
             page.goto(f"{base_url}/spending")
-            page.wait_for_load_state("networkidle")
         with allure.step("Добавление траты"):
             spending_page = Spending(page)
             currency = random.choice(currencies)
@@ -346,7 +331,6 @@ class TestSpending:
         user_data.add_spending(user_id=user_id, spending=category)
         with allure.step("Переход на главную страницу"):
             page.goto(f"{base_url}/main")
-            page.wait_for_load_state("networkidle")
         with allure.step("Поиск траты"):
             main_page = MainStatisticsPage(page)
             main_page.search(category)
@@ -360,7 +344,6 @@ class TestSpending:
         sign_in_front(user_data.get_user(user_id=0))
         with allure.step("Переход на страницу добавления трат"):
             page.goto(f"{base_url}/spending")
-            page.wait_for_load_state("networkidle")
         with allure.step("Добавление траты"):
             spending_page = Spending(page)
             currency = random.choice(currencies)

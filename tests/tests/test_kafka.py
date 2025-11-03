@@ -10,12 +10,11 @@ from tests.models.userdata import UserName
 
 person = mimesis.Person()
 
-
+@allure.feature("Kafka")
 @pytest.mark.run(order=1)
 class TestKafkaUserData:
-    @allure.title("KAFKA: Сообщение НЕ публикуется при регистрации с невалидным username")
-    @allure.tag("KAFKA")
-    @allure.tag("NEGATIVE")
+    @allure.story("Сообщение НЕ публикуется при регистрации с невалидным username")
+    @allure.tag("KAFKA", "NEGATIVE")
     def test_no_message_on_failed_registration(self, auth_client, kafka, envs):
         with allure.step("Попытка регистрации"):
             username = ""
@@ -40,9 +39,8 @@ class TestKafkaUserData:
                     continue
                 assert message_data.get("username") != username, f"Найдено сообщение с username={username}"
 
-    @allure.title("KAFKA: Сообщение НЕ публикуется при невалидном пароле")
-    @allure.tag("KAFKA")
-    @allure.tag("NEGATIVE")
+    @allure.story("Сообщение НЕ публикуется при невалидном пароле")
+    @allure.tag("KAFKA", "NEGATIVE")
     def test_no_message_on_invalid_password(self, auth_client, kafka, envs):
         with allure.step("Попытка регистрации"):
             username = Faker().user_name()
@@ -67,9 +65,8 @@ class TestKafkaUserData:
                     continue
                 assert message_data.get("username") != username, f"Найдено сообщение с username={username}"
 
-    @allure.title("KAFKA: Полный цикл регистрация")
-    @allure.tag("KAFKA")
-    @allure.tag("E2E")
+    @allure.story("Полный цикл регистрация")
+    @allure.tag("KAFKA", "E2E")
     def test_full_registration_flow_to_database(self, auth_client, kafka, userdata_db, envs):
         with allure.step("Генерация данных"):
             username = Faker().user_name()
@@ -110,7 +107,7 @@ class TestKafkaUserData:
             assert user_from_db is not None
             assert user_from_db.username == username
 
-    @allure.title("KAFKA: Прямая отправка сообщения топик")
+    @allure.story("Прямая отправка сообщения в топик")
     @allure.tag("KAFKA")
     def test_direct_message_to_userdata_topic(self, kafka, userdata_db):
         with allure.step("Отправка сообщения"):

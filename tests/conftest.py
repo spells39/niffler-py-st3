@@ -16,7 +16,7 @@ from tests.clients.kafka_client import KafkaClient
 from tests.models.config import Envs
 from tests.utils.UsersData import get_user_data
 
-pytest_plugins = ["tests.fixtures.auth", "tests.fixtures.clients", "tests.fixtures.pages"]
+pytest_plugins = ["tests.fixtures.auth", "tests.fixtures.clients", "tests.fixtures.pages", "tests.fixtures.soap"]
 
 person = mimesis.Person()
 
@@ -44,7 +44,7 @@ def pytest_fixture_setup(fixturedef: FixtureDef, request: FixtureRequest):
 
 
 def pytest_collection_modifyitems(items):
-    CLASS_ORDER = ["TestKafkaUserData", "TestAPI", "TestDB", "TestLogin", "TestProfile", "TestSpending"]
+    CLASS_ORDER = ["TestKafkaUserData", "TestAPI", "TestDB", "TestSoap", "TestLogin", "TestProfile", "TestSpending"]
     class_mapping = {item: item.cls.__name__ for item in items if hasattr(item, 'cls') and item.cls}
 
     sorted_items = []

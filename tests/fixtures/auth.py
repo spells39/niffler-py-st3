@@ -1,8 +1,11 @@
 import allure
+import mimesis
 import pytest
 
 from tests.clients.oauth_client import OAuthClient
 from tests.models.config import Envs
+
+person = mimesis.Person()
 
 @pytest.fixture(scope="session")
 def auth_client(envs: Envs):
@@ -48,3 +51,17 @@ def sign_in(users_from_db, auth_client, envs, sign_up):
             return resp
 
     return sign_in
+
+
+@pytest.fixture
+def sign_up_many_users(auth_client, envs):
+    def sign_up(count):
+        users = []
+        for i in range(count):
+            login = person.username()
+            resp = auth_client.register(login, person.password(), envs)
+            assert resp.status_code == 201, 'Регистрация завершилась неуспешно'
+            users.append(login)
+        return tuple(users)
+
+    return sign_up

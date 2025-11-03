@@ -2,6 +2,7 @@ import os
 
 import allure
 import mimesis
+import xml.etree.ElementTree as ET
 from allure_commons.types import AttachmentType
 from playwright.sync_api import Page
 from dotenv import load_dotenv
@@ -10,10 +11,39 @@ from tests.pages.login import Login
 from tests.pages.profile import Profile
 from tests.pages.sign_up import SignUp
 
+
 load_dotenv()
 
 front_url=os.getenv("BASE_URL")
 auth_url=os.getenv("AUTH_URL")
+
+def xml_to_dict(elem):
+    def strip_ns(tag):
+        if '}' in tag:
+            return tag.split('}', 1)[1]
+        return tag
+
+    d = {}
+    children = list(elem)
+    if children:
+        for child in children:
+            child_dict = xml_to_dict(child)
+            key = strip_ns(child.tag)
+            if key in d:
+                if not isinstance(d[key], list):
+                    d[key] = [d[key]]
+                d[key].append(child_dict[key])
+            else:
+                d.update(child_dict)
+        return {strip_ns(elem.tag): d}
+    else:
+        return {strip_ns(elem.tag): elem.text}
+
+
+def parse_xml_string(xml_string):
+    root = ET.fromstring(xml_string)
+    return xml_to_dict(root)
+
 
 def add_category_front(page: Page, category: str, url: str):
     with allure.step("Переход на страницу профиля"):
@@ -36,7 +66,6 @@ def sign_up_front(page: Page, user=None):
     if user is None:
         user = {'login': 'aboba', 'password': '12345'}
     page.goto(f"{auth_url}/register")
-    page.wait_for_load_state("networkidle")
     reg_page = SignUp(page)
     reg_page.sign_up(user['login'], user['password'])
     page.wait_for_url(f"{auth_url}/login")
