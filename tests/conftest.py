@@ -16,7 +16,8 @@ from tests.clients.kafka_client import KafkaClient
 from tests.models.config import Envs
 from tests.utils.UsersData import get_user_data
 
-pytest_plugins = ["tests.fixtures.auth", "tests.fixtures.clients", "tests.fixtures.pages", "tests.fixtures.soap"]
+pytest_plugins = ["tests.fixtures.auth", "tests.fixtures.clients", "tests.fixtures.pages", "tests.fixtures.soap",
+                  "tests.grpc.tests"]
 
 person = mimesis.Person()
 
@@ -44,7 +45,8 @@ def pytest_fixture_setup(fixturedef: FixtureDef, request: FixtureRequest):
 
 
 def pytest_collection_modifyitems(items):
-    CLASS_ORDER = ["TestKafkaUserData", "TestAPI", "TestDB", "TestSoap", "TestLogin", "TestProfile", "TestSpending"]
+    CLASS_ORDER = ["TestKafkaUserData", "TestAPI", "TestDB", "TestSoap", "TestCalculateRate", "TestGetAllCurrencies",
+                   "TestWiremockCurrencies", "TestLogin", "TestProfile", "TestSpending"]
     class_mapping = {item: item.cls.__name__ for item in items if hasattr(item, 'cls') and item.cls}
 
     sorted_items = []
@@ -72,8 +74,6 @@ def envs():
         spend_db_url=os.getenv("SPEND_DB_URL"),
         auth_db_url=os.getenv("USER_DB_URL"),
         userdata_db_url=os.getenv("USERDATA_DB_URL"),
-        test_username=os.getenv("TEST_USERNAME"),
-        test_password=os.getenv("TEST_PASSWORD"),
         kafka=os.getenv("KAFKA")
     )
     allure.attach(env_instance.model_dump_json(), name="envs", attachment_type=AttachmentType.JSON)

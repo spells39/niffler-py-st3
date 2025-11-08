@@ -1,0 +1,96 @@
+name: niffler
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.GITHUB_SHA }}
+
+      - name: JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build backends
+        run: |
+          bash docker-compose-dev.sh
+
+      - name: Edit hosts file
+        run: |
+          echo -e "127.0.0.1\tlocalhost\n127.0.0.1\tfrontend.niffler.dc\n127.0.0.1\tauth.niffler.dc\n127.0.0.1\tgateway.niffler.dc\n127.0.0.1\tkafka" | sudo tee -a /etc/hosts
+          
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Dependencies
+        run: pip install -r tests/requirements.txt
+
+      - name: Run tests without grpc wiremock tests
+        if: always()
+        run: pytest --ignore-glob="*wiremock*.py"
+        continue-on-error: true
+
+      - name: Run tests only grpc wiremock tests
+        if: always()
+        run: pytest \
+            --ignore=tests \
+            --ignore=grpc/tests/test_calculate_rate.py \
+            --ignore=grpc/tests/test_get_all_currencies.py \
+            --mock
+        continue-on-error: true
+
+      - name: Upload Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
+
+
+  report:
+    name: Generate Allure Report
+    needs: build-and-run-tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Allure Results
+        uses: actions/download-artifact@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: tests/allure-history
+          name: allure-results
+          path: allure-results
+
+      - name: Install Allure CLI
+        run: |
+          npm install -g allure-commandline --save-dev
+          allure --version
+      - name: Generate Allure Report
+        run: |
+          allure generate allure-results --clean -o allure-report
+      - name: Upload Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: allure-report
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
