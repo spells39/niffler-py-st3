@@ -7,6 +7,7 @@ dotenv==0.9.9
 mimesis==18.0.0
 faker==37.12.0
 allure-pytest==2.15.0
+allure-python-commons==2.15.0
 requests-toolbelt==1.0.0
 
 psycopg2-binary==2.9.11
