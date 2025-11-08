@@ -60,7 +60,7 @@ jobs:
 
   report:
     name: Generate Allure Report
-    needs: build-and-run-tests
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
