@@ -45,7 +45,10 @@ jobs:
           cache: 'pip'
 
       - name: Dependencies
-        run: pip install -r tests/requirements.txt
+        run: |
+          pip install -r tests/requirements.txt
+          pip install allure-pytest
+        
 
       - name: Run tests without grpc wiremock tests
         if: always()
