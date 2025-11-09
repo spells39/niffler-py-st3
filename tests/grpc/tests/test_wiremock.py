@@ -1,8 +1,11 @@
+import allure
 import grpc
 
 from tests.grpc.internal.pb.niffler_currency_pb2 import CalculateRequest, CurrencyValues
 from tests.grpc.internal.pb.niffler_currency_pb2_pbreflect import NifflerCurrencyServiceClient
 
+@allure.epic("gRPC")
+@allure.feature("Mock")
 class TestWiremockCurrencies:
     def test_calculate_rate_eur_to_eur(self, grpc_client: NifflerCurrencyServiceClient) -> None:
         try:

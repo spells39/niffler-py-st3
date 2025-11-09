@@ -1,11 +1,14 @@
+import allure
 import grpc
 import pytest
 
 from tests.grpc.internal.pb.niffler_currency_pb2 import CalculateRequest, CurrencyValues
 from tests.grpc.internal.pb.niffler_currency_pb2_pbreflect import NifflerCurrencyServiceClient
 
-
+@allure.epic("gRPC")
+@allure.feature("Niffler")
 class TestCalculateRate:
+
     def test_calculate_rate(self, grpc_client: NifflerCurrencyServiceClient) -> None:
         resp = grpc_client.calculate_rate(
             request=CalculateRequest(

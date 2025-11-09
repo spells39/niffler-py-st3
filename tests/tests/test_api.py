@@ -14,8 +14,8 @@ person = mimesis.Person()
 num = mimesis.Numeric()
 faker = Faker()
 
+@allure.epic("API")
 class TestAPI:
-    @allure.epic("API")
     @allure.feature("Профиль")
     @allure.story("Изменение информации о пользователе")
     def test_update_user(self, users_from_db, spends_client, user_data, auth_client, envs):
@@ -29,7 +29,6 @@ class TestAPI:
         resp = spends_client(user).edit_profile(payload)
         assert resp.fullname == payload.fullname and resp.username == payload.username
 
-    @allure.epic("API")
     @allure.feature("Категории")
     @allure.story("Добавление валидной категории")
     def test_add_category(self, user_data, users_from_db, spends_client, auth_client, envs):
@@ -40,7 +39,6 @@ class TestAPI:
         assert resp.name == category and resp.username == user['login'] and not resp.archived
         user_data.add_category(user_id=1, category=category)
 
-    @allure.epic("API")
     @allure.feature("Категории")
     @allure.story("Добавление невалидной категории")
     def test_add_invalid_category(self, user_data, users_from_db, spends_client, auth_client, envs):
@@ -50,7 +48,6 @@ class TestAPI:
         resp = spends_client(user).add_category(category, expect_error=True)
         assert resp.status_code == 400
 
-    @allure.epic("API")
     @allure.feature("Категории")
     @allure.story("Изменение категории")
     def test_update_category(self, user_data, spends_client, categories, users_from_db, auth_client, envs, add_category_api):
@@ -70,7 +67,6 @@ class TestAPI:
         user_data.remove_category(user_id=1, category=cat_name)
         user_data.add_category(user_id=2, category=new_category)
 
-    @allure.epic("API")
     @allure.feature("Категории")
     @allure.story("Архивирование категории")
     def test_archive_category(self, user_data, spends_client, categories, users_from_db, auth_client, envs, add_category_api):
@@ -88,7 +84,6 @@ class TestAPI:
         assert not any(resp.name == cat.name for cat in categories(user))
         user_data.remove_category(user_id=1, category=category.name)
 
-    @allure.epic("API")
     @allure.feature("Траты")
     @allure.story("Добавление валидной траты")
     def test_add_spend(self, user_data, spends_client, users_from_db, auth_client, envs):
@@ -105,7 +100,6 @@ class TestAPI:
         assert resp.category.name == category_name and resp.description == payload.description
         user_data.add_spending(user_id=1, spending=category_name)
 
-    @allure.epic("API")
     @allure.feature("Траты")
     @allure.story("Добавление невалидной траты")
     def test_add_invalid_spend(self, user_data, spends_client, users_from_db, auth_client, envs):
@@ -121,7 +115,6 @@ class TestAPI:
         resp = spends_client(user).add_spend(payload, expect_error=True)
         assert resp.status_code == 400
 
-    @allure.epic("API")
     @allure.feature("Траты")
     @allure.story("Изменение траты")
     def test_edit_spend(self, user_data, spends_client, spends, users_from_db, auth_client, envs):
@@ -143,7 +136,6 @@ class TestAPI:
         user_data.remove_spending(user_id=1, spending=spend['category']['name'])
         user_data.add_spending(user_id=1, spending=category_name)
 
-    @allure.epic("API")
     @allure.feature("Траты")
     @allure.story("Поиск траты")
     def test_search_spend(self, user_data, spends_client, spends, users_from_db, auth_client, envs):
@@ -155,7 +147,6 @@ class TestAPI:
         resp = spends_client(user).search_spend(payload)
         assert resp.numberOfElements == 1 and resp.content[0].category.name == spend['category']['name']
 
-    @allure.epic("API")
     @allure.feature("Траты")
     @allure.story("Удаление всех трат")
     def test_delete_all_spends(self, user_data, spends_client, spends, users_from_db, auth_client, envs):
