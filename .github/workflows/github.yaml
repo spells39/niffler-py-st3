@@ -46,7 +46,11 @@ jobs:
 
       - name: Dependencies
         run: |
-          pip install -r tests/requirements.txt        
+          pip install -r tests/requirements.txt
+
+      - name: Install Playwright browsers
+        run: |
+          playwright install --with-deps
 
       - name: Run tests without grpc wiremock tests
         if: always()
