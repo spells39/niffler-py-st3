@@ -54,16 +54,12 @@ jobs:
 
       - name: Run tests without grpc wiremock tests
         if: always()
-        run: pytest --ignore-glob="*wiremock*.py"
+        run: pytest -k "not wiremock"
         continue-on-error: true
 
       - name: Run tests only grpc wiremock tests
         if: always()
-        run: pytest \
-            --ignore=tests/tests \
-            --ignore=tests/grpc/tests/test_calculate_rate.py \
-            --ignore=tests/grpc/tests/test_get_all_currencies.py \
-            --mock
+        run: pytest -k "wiremock" --mock
         continue-on-error: true
 
       - name: Upload Allure Results
