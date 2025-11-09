@@ -16,8 +16,8 @@ INTERCEPTORS = [
 def settings() -> Settings:
     return Settings()
 
-def pytest_addoption(parser: pytest.Parser) -> None:
-    parser.addoption("--mock", action="store_true", default=False)
+# def pytest_addoption(parser: pytest.Parser) -> None:
+#     parser.addoption("--mock", action="store_true", default=False)
 
 @pytest.fixture(scope='session')
 def grpc_client(settings: Settings, request: pytest.FixtureRequest) -> NifflerCurrencyServiceClient:

@@ -28,6 +28,9 @@ def allure_logger(config) -> AllureReporter:
     listener: AllureListener = config.pluginmanager.get_plugin("allure_listener")
     return listener.allure_logger
 
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.addoption("--mock", action="store_true", default=False)
+
 
 @pytest.hookimpl(hookwrapper=True, trylast=True)
 def pytest_runtest_call(item: Item):
