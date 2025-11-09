@@ -60,9 +60,9 @@ jobs:
       - name: Run tests only grpc wiremock tests
         if: always()
         run: pytest \
-            --ignore=tests \
-            --ignore=grpc/tests/test_calculate_rate.py \
-            --ignore=grpc/tests/test_get_all_currencies.py \
+            --ignore=tests/tests \
+            --ignore=tests/grpc/tests/test_calculate_rate.py \
+            --ignore=tests/grpc/tests/test_get_all_currencies.py \
             --mock
         continue-on-error: true
 
@@ -82,6 +82,11 @@ jobs:
       contents: read
       pages: write
       id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -89,9 +94,6 @@ jobs:
       - name: Download Allure Results
         uses: actions/download-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: tests/allure-history
           name: allure-results
           path: allure-results
 
@@ -99,14 +101,16 @@ jobs:
         run: |
           npm install -g allure-commandline --save-dev
           allure --version
+
       - name: Generate Allure Report
         run: |
           allure generate allure-results --clean -o allure-report
-      - name: Upload Pages
+
+      - name: Upload Allure Report to Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: allure-report
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy Allure Report to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
