@@ -46,9 +46,7 @@ jobs:
 
       - name: Dependencies
         run: |
-          pip install -r tests/requirements.txt
-          pip install allure-pytest
-        
+          pip install -r tests/requirements.txt        
 
       - name: Run tests without grpc wiremock tests
         if: always()
