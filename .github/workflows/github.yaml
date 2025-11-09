@@ -34,9 +34,20 @@ jobs:
         run: |
           bash docker-compose-dev.sh
 
+      - name: Run CurrencyMock gRPC container
+        run: |
+          docker run -d \
+          --name currencymock.niffler.dc \
+          -p 8888:8888 \
+          -p 8094:8094 \
+          -v ${{ github.workspace }}/wiremock/grpc:/wiremock \
+          -v ${{ github.workspace }}/tests/grpc/protos:/proto \
+          -e GRPC_SERVER_PORT=8094 \
+          adven27/grpc-wiremock:latest
+
       - name: Edit hosts file
         run: |
-          echo -e "127.0.0.1\tlocalhost\n127.0.0.1\tfrontend.niffler.dc\n127.0.0.1\tauth.niffler.dc\n127.0.0.1\tgateway.niffler.dc\n127.0.0.1\tkafka" | sudo tee -a /etc/hosts
+          echo -e "127.0.0.1\tlocalhost\n127.0.0.1\tfrontend.niffler.dc\n127.0.0.1\tauth.niffler.dc\n127.0.0.1\tgateway.niffler.dc\n127.0.0.1\tkafka\n127.0.0.1\tcurrencymock.niffler.dc" | sudo tee -a /etc/hosts
           
       - name: Setup Python
         uses: actions/setup-python@v5
